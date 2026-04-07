@@ -1,0 +1,6 @@
+id,conversation_id,user_id,content,role,created_at
+b1a2c3d4-e5f6-7890-abcd-123456789012,6f24d101-9f9b-4e12-b2f7-872f2d94e32a,,Hello! How can I help you today?,assistant,2026-03-30T10:00:05Z
+c2b3d4e5-f6a7-8901-bcde-234567890123,6f24d101-9f9b-4e12-b2f7-872f2d94e32a,,Tell me a joke about AI.,user,2026-03-30T10:01:00Z
+d3c4e5f6-0123-4567-8901-345678901234,6f24d101-9f9b-4e12-b2f7-872f2d94e32a,,"Why did the AI go to therapy? It had too many 'terminal' issues.",assistant,2026-03-30T10:01:05Z
+e4f5a6b7-8901-2345-6789-456789012345,a3c4e5f6-7890-1234-abcd-ef1234567890,,What is Supabase?,user,2026-03-30T11:00:05Z
+f5a6b7c8-9012-3456-7890-567890123456,a3c4e5f6-7890-1234-abcd-ef1234567890,,Supabase is an open source Firebase alternative.,assistant,2026-03-30T11:01:00Z

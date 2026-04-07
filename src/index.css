@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─── */
+:root {
+  --gradient-accent: linear-gradient(135deg, #8b5cf6, #6366f1, #06b6d4);
+  --gradient-accent-hover: linear-gradient(135deg, #a78bfa, #818cf8, #22d3ee);
+  --gradient-surface: linear-gradient(180deg, #111114 0%, #09090b 100%);
+  --glass-bg: rgba(17, 17, 20, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 20px;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Base Resets ─── */
+* {
+  @apply selection:bg-accent-violet/30 selection:text-white;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply bg-surface-0 text-text-primary font-sans;
+  background: var(--gradient-surface);
+  min-height: 100vh;
+}
+
+/* ─── Premium Scrollbar ─── */
+::-webkit-scrollbar {
+  @apply w-1.5 h-1.5;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+/* ─── Glass Effect Utility ─── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-subtle {
+  background: rgba(17, 17, 20, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Gradient Text ─── */
+.gradient-text {
+  background: var(--gradient-accent);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ─── Gradient Border ─── */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-accent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  transition: opacity var(--transition-smooth);
+}
+
+.gradient-border:hover::before,
+.gradient-border:focus-within::before {
+  opacity: 1;
+}
+
+/* ─── Dot Loading Animation ─── */
+.loading-dot {
+  @apply w-2 h-2 rounded-full;
+  background: var(--gradient-accent);
+  background-size: 200% 200%;
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    transform: scale(0.5);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ─── Focus Ring ─── */
+.focus-ring {
+  @apply outline-none;
+  transition: box-shadow var(--transition-fast);
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+}
+
+/* ─── Custom Range Slider ─── */
+input[type="range"] {
+  @apply appearance-none bg-transparent cursor-pointer;
+  height: 6px;
+}
+
+input[type="range"]::-webkit-slider-track {
+  @apply rounded-full;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none rounded-full;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  background: var(--gradient-accent);
+  background-size: 200% 200%;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  transition: transform var(--transition-spring), box-shadow var(--transition-fast);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+}
+
+input[type="range"]::-moz-range-track {
+  @apply rounded-full;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  @apply rounded-full;
+  width: 18px;
+  height: 18px;
+  background: var(--gradient-accent);
+  border: none;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+}
+
+/* ─── Smooth Transitions for Interactive Elements ─── */
+button, a, input, textarea, select {
+  transition: all var(--transition-fast);
+}
+
+/* ─── Message Entrance Animation ─── */
+.message-enter {
+  animation: messageSlideIn 0.35s ease-out;
+}
+
+@keyframes messageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Suggestion Chip Hover ─── */
+.suggestion-chip {
+  @apply relative overflow-hidden;
+  transition: all var(--transition-smooth);
+}
+
+.suggestion-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-accent);
+  opacity: 0;
+  transition: opacity var(--transition-smooth);
+  border-radius: inherit;
+}
+
+.suggestion-chip:hover::before {
+  opacity: 0.1;
+}
+
+/* ─── Sidebar Active Indicator ─── */
+.sidebar-item-active {
+  position: relative;
+}
+
+.sidebar-item-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 4px 4px 0;
+  background: var(--gradient-accent);
+}
