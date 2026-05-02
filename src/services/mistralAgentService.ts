@@ -1,7 +1,5 @@
 /// <reference types="vite/client" />
 import { Mistral } from "@mistralai/mistralai";
-import { ChatCompletionResponse } from "@mistralai/mistralai/models/components/chatcompletionresponse";
-import { Agent } from "http";
 
 export interface ChatMessage {
   content: string;

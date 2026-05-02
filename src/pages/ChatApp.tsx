@@ -24,7 +24,9 @@ export const ChatApp = () => {
     setMessageLoading,
     setConversationTitle,
     initializeStore,
-    selectedModel
+    selectedModel,
+    selectedAgentId,
+    selectedAgentVersion
   } = store;
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -103,11 +105,14 @@ export const ChatApp = () => {
           topP: store.topP,
           maxTokens: 10000,
           randomSeed: Math.floor(Math.random() * 1000000)
-        }
+        },
+        selectedAgentId,
+        selectedAgentVersion
       );
 
       const accumulatedResponse = response.content || '';
-      updateMessage(currentConversation.id, loadingMessage.id, accumulatedResponse);
+      const thinking = (response as any).thinking;
+      updateMessage(currentConversation.id, loadingMessage.id, accumulatedResponse, thinking);
       setMessageLoading(currentConversation.id, loadingMessage.id, false);
 
       if (currentConversation.messages.length <= 2) {
@@ -153,11 +158,12 @@ export const ChatApp = () => {
             )}
           </div>
 
-          {/* Model badge */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black border border-border-subtle">
             <div className="w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse" />
             <span className="text-[11px] font-medium text-text-muted">
-              {selectedModel?.replace('mistral-', '').replace('-latest', '') || 'small'}
+              {selectedAgentId 
+                ? (selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? 'rollo' : 'agent') 
+                : (selectedModel?.replace('mistral-', '').replace('-latest', '') || 'small')}
             </span>
           </div>
         </header>
@@ -214,6 +220,7 @@ export const ChatApp = () => {
                   <ChatMessage
                     key={msg.id}
                     content={msg.content}
+                    thinking={msg.thinking}
                     role={msg.role as 'user' | 'assistant'}
                     isLoading={msg.isLoading}
                   />

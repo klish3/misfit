@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronRight, BrainCircuit } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import clsx from 'clsx';
 
 interface ChatMessageProps {
   content: string;
+  thinking?: string;
   role: 'user' | 'assistant';
   isLoading?: boolean;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ content, role, isLoading }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, role, isLoading }) => {
   const isUser = role === 'user';
   const [copied, setCopied] = useState(false);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
+  const [showThinking, setShowThinking] = useState(true);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -58,8 +61,37 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, role, isLoadi
           ) : isUser ? (
             <p className="whitespace-pre-wrap break-words">{content}</p>
           ) : (
-            /* Rendered Markdown for assistant messages */
-            <div className="markdown-body">
+            <>
+              {/* Thinking block */}
+              {thinking && (
+                <div className="mb-4">
+                  <button
+                    onClick={() => setShowThinking(!showThinking)}
+                    className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted hover:text-text-primary transition-colors group/think"
+                  >
+                    <div className="flex items-center justify-center w-4 h-4 rounded bg-surface-3 text-accent-violet">
+                      <BrainCircuit size={10} />
+                    </div>
+                    <span>Thinking Process</span>
+                    {showThinking ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                  </button>
+                  
+                  {showThinking && (
+                    <div className="mt-2 pl-3 border-l border-border-subtle/50 text-[13px] text-text-muted italic leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {typeof thinking === 'string' ? thinking : JSON.stringify(thinking)}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                  
+                  {!showThinking && (
+                    <div className="h-px bg-gradient-to-r from-border-subtle/50 to-transparent mt-3 w-full" />
+                  )}
+                </div>
+              )}
+              
+              /* Rendered Markdown for assistant messages */
+              <div className="markdown-body">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -221,6 +253,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, role, isLoadi
                 {content}
               </ReactMarkdown>
             </div>
+          </>
           )}
         </div>
 

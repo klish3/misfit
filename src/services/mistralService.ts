@@ -63,9 +63,74 @@ class MistralService {
       topP: 0.9,
       maxTokens: 10000,
       randomSeed: Math.floor(Math.random() * 1000000)
-    }
+    },
+    agentId?: string,
+    agentVersion?: number
   ) {
     try {
+      if (agentId) {
+        // Agents do not support 'system' role in inputs
+        const agentInputs = messages.filter(msg => msg.role !== 'system');
+
+        // Use beta.conversations.start to support agentVersion
+        const response = await (this.client.beta.conversations.start as any)({
+          agentId,
+          agentVersion: agentVersion || 1,
+          inputs: agentInputs,
+        });
+
+        // The response structure for beta.conversations.start uses 'outputs'
+        const outputs = response.outputs || [];
+        
+        // Combine all message outputs
+        let contentString = '';
+        let thinkingString = '';
+        let role = 'assistant';
+
+        const extractThinking = (think: any): string => {
+          if (!think) return '';
+          if (typeof think === 'string') {
+            try {
+              const parsed = JSON.parse(think);
+              if (parsed && typeof parsed === 'object') {
+                return parsed.text || parsed.content || think;
+              }
+            } catch {
+              // Not JSON, just return string
+            }
+            return think;
+          }
+          return think.text || think.content || JSON.stringify(think);
+        };
+
+        outputs.forEach((output: any) => {
+          if (output.type === 'message.output') {
+            const content = output.content;
+            if (typeof content === 'string') {
+              contentString += content;
+            } else if (Array.isArray(content)) {
+              content.forEach((chunk: any) => {
+                if (typeof chunk === 'string') {
+                  contentString += chunk;
+                } else if (chunk.text) {
+                  contentString += chunk.text;
+                } else if (chunk.thinking) {
+                  thinkingString += extractThinking(chunk.thinking);
+                }
+              });
+            }
+          }
+        });
+
+        return {
+          content: contentString.trim(),
+          thinking: thinkingString.trim() || undefined,
+          role: role,
+          usage: response.usage,
+          finishReason: 'stop'
+        };
+      }
+
       const response = await this.client.chat.complete({
         model,
         messages,
@@ -77,21 +142,39 @@ class MistralService {
 
       const messageContent = response.choices[0].message.content;
       let contentString = '';
+      let thinkingString = '';
+
+      const extractThinking = (think: any): string => {
+        if (!think) return '';
+        if (typeof think === 'string') {
+          try {
+            const parsed = JSON.parse(think);
+            if (parsed && typeof parsed === 'object') {
+              return parsed.text || parsed.content || think;
+            }
+          } catch {
+            // Not JSON
+          }
+          return think;
+        }
+        return think.text || think.content || JSON.stringify(think);
+      };
 
       if (typeof messageContent === 'string') {
         contentString = messageContent;
       } else if (Array.isArray(messageContent)) {
-        contentString = messageContent
-          .map(chunk => {
-            if (chunk.type === 'text') return chunk.text;
-            if (chunk.type === 'thinking') return chunk.thinking;
-            return '';
-          })
-          .join('');
+        messageContent.forEach((chunk: any) => {
+          if (chunk.type === 'text') {
+            contentString += chunk.text;
+          } else if (chunk.type === 'thinking') {
+            thinkingString += extractThinking(chunk.thinking);
+          }
+        });
       }
 
       return {
         content: contentString,
+        thinking: thinkingString || undefined,
         role: response.choices[0].message.role,
         usage: response.usage,
         finishReason: response.choices[0].finishReason

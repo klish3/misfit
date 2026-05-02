@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowUp, Paperclip } from 'lucide-react';
+import { ArrowUp, Paperclip, Settings2, Zap, Shield, Sparkles, Bot, Cpu, X, Sliders } from 'lucide-react';
+import { useStore } from '@/store';
+import clsx from 'clsx';
 
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
@@ -7,8 +9,40 @@ interface ChatInputProps {
 }
 
 export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
+  const { 
+    selectedModel, 
+    selectedAgentId,
+    selectedAgentVersion,
+    temperature, 
+    topP, 
+    systemPrompt, 
+    setModelSettings 
+  } = useStore();
+  
   const [input, setInput] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  // Close drawer when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
+        // Only close if not clicking the toggle button
+        const toggleBtn = document.getElementById('settings-toggle-btn');
+        if (toggleBtn && !toggleBtn.contains(event.target as Node)) {
+          setShowSettings(false);
+        }
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettings]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -37,8 +71,146 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
   const hasContent = input.trim().length > 0;
 
   return (
-    <div className="px-4 pb-5 pt-2">
+    <div className="px-4 pb-5 pt-2 relative">
       <div className="max-w-3xl mx-auto">
+        {/* Settings Drawer */}
+        {showSettings && (
+          <div 
+            ref={drawerRef}
+            className="absolute bottom-full left-4 right-4 mb-3 z-30 animate-in fade-in slide-in-from-bottom-4 duration-300"
+          >
+            <div className="max-w-3xl mx-auto bg-surface-2 border border-border-subtle rounded-2xl shadow-glow-lg overflow-hidden backdrop-blur-xl">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border-subtle bg-surface-3/50">
+                <div className="flex items-center gap-2">
+                  <Sliders size={16} className="text-accent-violet" />
+                  <span className="text-sm font-semibold text-text-primary">Advanced Settings</span>
+                </div>
+                <button 
+                  onClick={() => setShowSettings(false)}
+                  className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-3 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              
+              <div className="p-5 max-h-[60vh] overflow-y-auto custom-scrollbar space-y-6">
+                {/* Agent Selection */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Agent</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setModelSettings({ selectedAgentId: undefined, selectedAgentVersion: undefined })}
+                      className={clsx(
+                        "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                        !selectedAgentId 
+                          ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                          : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
+                      )}
+                    >
+                      <Cpu size={18} className={!selectedAgentId ? "text-accent-violet" : ""} />
+                      <div>
+                        <div className="text-sm font-medium">None (Direct Model)</div>
+                        <div className="text-[11px] opacity-70">Use base Mistral models</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setModelSettings({ 
+                        selectedAgentId: 'ag_019dac56d3db769182f00597885ba0ef', 
+                        selectedAgentVersion: 20 
+                      })}
+                      className={clsx(
+                        "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                        selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef'
+                          ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                          : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
+                      )}
+                    >
+                      <Bot size={18} className={selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? "text-accent-violet" : ""} />
+                      <div>
+                        <div className="text-sm font-medium">Rollo</div>
+                        <div className="text-[11px] opacity-70">Specialized agent (v20)</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Model Selection (Hidden if agent selected) */}
+                {!selectedAgentId && (
+                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Model</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'mistral-small-latest', name: 'Mistral Small', icon: <Zap size={16} /> },
+                        { id: 'mistral-medium-latest', name: 'Mistral Medium', icon: <Bot size={16} /> }
+                      ].map((model) => (
+                        <button
+                          key={model.id}
+                          onClick={() => setModelSettings({ selectedModel: model.id })}
+                          className={clsx(
+                            "flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all text-sm",
+                            selectedModel === model.id 
+                              ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                              : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
+                          )}
+                        >
+                          {model.icon}
+                          {model.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Parameters */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Temperature</h3>
+                      <span className="text-[11px] font-mono text-accent-violet">{temperature.toFixed(1)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1.5"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setModelSettings({ temperature: parseFloat(e.target.value) })}
+                      className="w-full accent-accent-violet"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Top P</h3>
+                      <span className="text-[11px] font-mono text-accent-cyan">{topP.toFixed(1)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={topP}
+                      onChange={(e) => setModelSettings({ topP: parseFloat(e.target.value) })}
+                      className="w-full accent-accent-cyan"
+                    />
+                  </div>
+                </div>
+
+                {/* System Prompt */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">System Prompt</h3>
+                  <textarea
+                    value={systemPrompt}
+                    onChange={(e) => setModelSettings({ systemPrompt: e.target.value })}
+                    rows={3}
+                    placeholder="Set instructions for the AI behavior..."
+                    className="w-full bg-surface-3 border border-border-subtle rounded-xl p-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-violet/50 resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Floating input container */}
         <div
           className={`relative rounded-2xl transition-all duration-300 
@@ -78,6 +250,22 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5 pr-3 pb-3">
+                {/* Settings Toggle button */}
+                <button
+                  id="settings-toggle-btn"
+                  type="button"
+                  onClick={() => setShowSettings(!showSettings)}
+                  className={clsx(
+                    "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+                    showSettings 
+                      ? "bg-accent-violet/20 text-accent-violet" 
+                      : "text-text-muted hover:text-text-secondary hover:bg-surface-3"
+                  )}
+                  aria-label="Toggle settings"
+                >
+                  <Settings2 size={16} />
+                </button>
+
                 {/* Attach button */}
                 <button
                   type="button"

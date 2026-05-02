@@ -9,6 +9,8 @@ const initialState: AppState = {
   currentConversationId: '',
   darkMode: false,
   selectedModel: 'mistral-small-latest',
+  selectedAgentId: undefined,
+  selectedAgentVersion: undefined,
   temperature: 0.7,
   topP: 0.9,
   systemPrompt: '',
@@ -21,9 +23,9 @@ export type Action =
   | { type: 'SELECT_CONVERSATION'; payload: string }
   | { type: 'DELETE_CONVERSATION'; payload: string }
   | { type: 'TOGGLE_DARK_MODE' }
-  | { type: 'SET_MODEL_SETTINGS'; payload: Partial<Pick<AppState, 'selectedModel' | 'temperature' | 'topP' | 'systemPrompt'>> }
+  | { type: 'SET_MODEL_SETTINGS'; payload: Partial<Pick<AppState, 'selectedModel' | 'selectedAgentId' | 'selectedAgentVersion' | 'temperature' | 'topP' | 'systemPrompt'>> }
   | { type: 'ADD_MESSAGE'; payload: { conversationId: string; message: Message } }
-  | { type: 'UPDATE_MESSAGE'; payload: { conversationId: string; messageId: string; content: string } }
+  | { type: 'UPDATE_MESSAGE'; payload: { conversationId: string; messageId: string; content: string; thinking?: string } }
   | { type: 'SET_MESSAGE_LOADING'; payload: { conversationId: string; messageId: string; loading: boolean } }
   | { type: 'SET_CONVERSATION_TITLE'; payload: { conversationId: string; title: string } }
   | { type: 'SET_CONVERSATIONS'; payload: Conversation[] };
@@ -92,7 +94,7 @@ function reducer(state: AppState, action: Action): AppState {
                 ...conv,
                 messages: conv.messages.map(msg =>
                   msg.id === action.payload.messageId
-                    ? { ...msg, content: action.payload.content }
+                    ? { ...msg, content: action.payload.content, thinking: action.payload.thinking }
                     : msg
                 ),
                 updatedAt: Date.now(),
@@ -223,18 +225,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'TOGGLE_DARK_MODE' });
   }, []);
 
-  const setModelSettings = useCallback((settings: Partial<Pick<AppState, 'selectedModel' | 'temperature' | 'topP' | 'systemPrompt'>>) => {
+  const setModelSettings = useCallback((settings: Partial<Pick<AppState, 'selectedModel' | 'selectedAgentId' | 'selectedAgentVersion' | 'temperature' | 'topP' | 'systemPrompt'>>) => {
     dispatch({ type: 'SET_MODEL_SETTINGS', payload: settings });
     
     // Sync to Supabase - using current state + new settings to ensure full record is sent
     const newSettings = {
-      selectedModel: settings.selectedModel ?? state.selectedModel,
-      temperature: settings.temperature ?? state.temperature,
-      topP: settings.topP ?? state.topP,
-      systemPrompt: settings.systemPrompt ?? state.systemPrompt,
+      selectedModel: 'selectedModel' in settings ? settings.selectedModel : state.selectedModel,
+      selectedAgentId: 'selectedAgentId' in settings ? settings.selectedAgentId : state.selectedAgentId,
+      selectedAgentVersion: 'selectedAgentVersion' in settings ? settings.selectedAgentVersion : state.selectedAgentVersion,
+      temperature: 'temperature' in settings ? settings.temperature : state.temperature,
+      topP: 'topP' in settings ? settings.topP : state.topP,
+      systemPrompt: 'systemPrompt' in settings ? settings.systemPrompt : state.systemPrompt,
     };
     supabaseService.upsertUserPreferences(STATIC_USER_ID, newSettings);
-  }, [state.selectedModel, state.temperature, state.topP, state.systemPrompt]);
+  }, [state.selectedModel, state.selectedAgentId, state.selectedAgentVersion, state.temperature, state.topP, state.systemPrompt]);
 
   const addMessage = useCallback((conversationId: string, content: string, role: 'user' | 'assistant'): Message => {
     const message: Message = {
@@ -252,9 +256,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return message;
   }, []);
 
-  const updateMessage = useCallback((conversationId: string, messageId: string, content: string) => {
-    dispatch({ type: 'UPDATE_MESSAGE', payload: { conversationId, messageId, content } });
-    supabaseService.updateMessage(messageId, content);
+  const updateMessage = useCallback((conversationId: string, messageId: string, content: string, thinking?: string) => {
+    dispatch({ type: 'UPDATE_MESSAGE', payload: { conversationId, messageId, content, thinking } });
+    supabaseService.updateMessage(messageId, content, thinking);
   }, []);
 
   const setMessageLoading = useCallback((conversationId: string, messageId: string, loading: boolean) => {

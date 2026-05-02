@@ -1,6 +1,7 @@
 export interface Message {
   id: string;
   content: string;
+  thinking?: string;
   role: 'user' | 'assistant' | 'system';
   timestamp: number;
   isLoading: boolean;
@@ -19,6 +20,8 @@ export interface AppState {
   currentConversationId: string;
   darkMode: boolean;
   selectedModel: string;
+  selectedAgentId?: string;
+  selectedAgentVersion?: number;
   temperature: number;
   topP: number;
   systemPrompt: string;
@@ -30,7 +33,7 @@ export interface AppContextType extends AppState {
   selectConversation: (id: string) => void;
   deleteConversation: (id: string) => Promise<void>;
   toggleDarkMode: () => void;
-  setModelSettings: (settings: Partial<Pick<AppState, 'selectedModel' | 'temperature' | 'topP' | 'systemPrompt'>>) => void;
+  setModelSettings: (settings: Partial<Pick<AppState, 'selectedModel' | 'selectedAgentId' | 'selectedAgentVersion' | 'temperature' | 'topP' | 'systemPrompt'>>) => void;
   addMessage: (conversationId: string, content: string, role: 'user' | 'assistant') => Message;
   updateMessage: (conversationId: string, messageId: string, content: string) => void;
   setMessageLoading: (conversationId: string, messageId: string, loading: boolean) => void;
