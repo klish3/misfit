@@ -35,7 +35,7 @@ export interface AppContextType extends AppState {
   toggleDarkMode: () => void;
   setModelSettings: (settings: Partial<Pick<AppState, 'selectedModel' | 'selectedAgentId' | 'selectedAgentVersion' | 'temperature' | 'topP' | 'systemPrompt'>>) => void;
   addMessage: (conversationId: string, content: string, role: 'user' | 'assistant') => Message;
-  updateMessage: (conversationId: string, messageId: string, content: string) => void;
+  updateMessage: (conversationId: string, messageId: string, content: string, thinking?: string) => void;
   setMessageLoading: (conversationId: string, messageId: string, loading: boolean) => void;
   setConversationTitle: (conversationId: string, title: string) => Promise<void>;
   // Computed values

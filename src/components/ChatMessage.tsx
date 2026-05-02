@@ -29,13 +29,23 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
     setTimeout(() => setCopiedBlock(null), 2000);
   };
 
+  const parseThinking = () => {
+      let thinkingText = '';
+      if (typeof thinking === 'string') {
+        const parsed = JSON.parse(thinking);
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+        thinkingText = items.map((item: { text?: string }) => item.text || '').join('');
+      }
+      return thinkingText;
+  };
+
   return (
     <div className={`message-enter group flex gap-3 mb-5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {/* Avatar */}
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-2 mt-0.5 ${
           isUser
-            ? 'bg-accent-violet text-white ring-accent-violet/30'
+            ? 'bg-accent-primary text-white ring-accent-primary/30'
             : 'bg-gradient-to-br from-accent-cyan to-accent-teal text-white ring-accent-cyan/20'
         }`}
       >
@@ -47,7 +57,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
         <div
           className={`rounded-2xl px-4 py-3 leading-relaxed text-[15px] ${
             isUser
-              ? 'bg-accent-violet/15 text-text-primary border border-accent-violet/10'
+              ? 'bg-accent-primary/15 text-text-primary border border-accent-primary/10'
               : 'bg-black text-text-primary border border-border-subtle'
           }`}
           style={isUser ? { borderTopRightRadius: '6px' } : { borderTopLeftRadius: '6px' }}
@@ -68,8 +78,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
                   <button
                     onClick={() => setShowThinking(!showThinking)}
                     className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted hover:text-text-primary transition-colors group/think"
+                    aria-label={showThinking ? "Hide thinking process" : "Show thinking process"}
                   >
-                    <div className="flex items-center justify-center w-4 h-4 rounded bg-surface-3 text-accent-violet">
+                    <div className="flex items-center justify-center w-4 h-4 rounded bg-surface-3 text-accent-primary">
                       <BrainCircuit size={10} />
                     </div>
                     <span>Thinking Process</span>
@@ -79,7 +90,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
                   {showThinking && (
                     <div className="mt-2 pl-3 border-l border-border-subtle/50 text-[13px] text-text-muted italic leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {typeof thinking === 'string' ? thinking : JSON.stringify(thinking)}
+                        {/* { typeof thinking === 'string' ? thinking : JSON.parse(thinking).text} */}
+                        {parseThinking()}
                       </ReactMarkdown>
                     </div>
                   )}
@@ -90,7 +102,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
                 </div>
               )}
               
-              /* Rendered Markdown for assistant messages */
+              {/*  Rendered Markdown for assistant messages  */}
               <div className="markdown-body">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -128,7 +140,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-accent-violet hover:text-accent-indigo underline underline-offset-2 decoration-accent-violet/30 hover:decoration-accent-violet/60 transition-colors"
+                      className="text-accent-primary hover:text-accent-secondary underline underline-offset-2 decoration-accent-primary/30 hover:decoration-accent-primary/60 transition-colors"
                     >
                       {children}
                     </a>
@@ -149,11 +161,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
                       <li className="flex gap-2 leading-relaxed">
                         <span className="flex-shrink-0 mt-[3px]">
                           {isOrdered ? (
-                            <span className="text-accent-violet text-xs font-semibold font-mono min-w-[1rem] inline-block">
+                            <span className="text-accent-primary text-xs font-semibold font-mono min-w-[1rem] inline-block">
                               {(index ?? 0) + 1}.
                             </span>
                           ) : (
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-violet/60 mt-[5px]" />
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-primary/60 mt-[5px]" />
                           )}
                         </span>
                         <span className="flex-1">{children}</span>
@@ -176,7 +188,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
 
                     if (isInline) {
                       return (
-                        <code className="px-1.5 py-0.5 rounded-md bg-accent-violet/10 text-accent-violet text-[13px] font-mono">
+                        <code className="px-1.5 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[13px] font-mono">
                           {children}
                         </code>
                       );
@@ -216,7 +228,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
 
                   // Blockquotes
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-2 border-accent-violet/40 pl-4 py-1 mb-3 last:mb-0 text-text-secondary italic">
+                    <blockquote className="border-l-2 border-accent-primary/40 pl-4 py-1 mb-3 last:mb-0 text-text-secondary italic">
                       {children}
                     </blockquote>
                   ),

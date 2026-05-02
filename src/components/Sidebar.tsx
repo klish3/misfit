@@ -146,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 isCollapsed ? "px-2" : "px-4"
               }`}
           >
-            <Plus size={16} className="text-accent-violet" />
+            <Plus size={16} className="text-accent-primary" />
             {!isCollapsed && <span>New Chat</span>}
           </button>
         </div>
@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             size={16}
                             className={
                               isActive
-                                ? "text-accent-violet"
+                                ? "text-accent-primary"
                                 : "text-text-muted"
                             }
                           />
@@ -250,7 +250,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               ${isCollapsed ? "px-2 justify-center" : "px-3"}`}
           >
             {isSyncing ? (
-              <div className="w-4 h-4 border-2 border-accent-violet border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
             ) : syncSuccess ? (
               <CheckCircle2 size={16} className="text-green-500" />
             ) : (

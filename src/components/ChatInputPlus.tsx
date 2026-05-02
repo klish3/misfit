@@ -82,10 +82,12 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
             <div className="max-w-3xl mx-auto bg-surface-2 border border-border-subtle rounded-2xl shadow-glow-lg overflow-hidden backdrop-blur-xl">
               <div className="flex items-center justify-between px-5 py-3 border-b border-border-subtle bg-surface-3/50">
                 <div className="flex items-center gap-2">
-                  <Sliders size={16} className="text-accent-violet" />
+                  <Sliders size={16} className="text-accent-primary" />
                   <span className="text-sm font-semibold text-text-primary">Advanced Settings</span>
                 </div>
                 <button 
+                  type="button"
+                  title="Close settings"
                   onClick={() => setShowSettings(false)}
                   className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-3 transition-colors"
                 >
@@ -102,33 +104,51 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                       onClick={() => setModelSettings({ selectedAgentId: undefined, selectedAgentVersion: undefined })}
                       className={clsx(
                         "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
-                        !selectedAgentId 
-                          ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                        !selectedAgentId
+                          ? "bg-accent-primary/10 border-accent-primary/40 text-text-primary"
                           : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
                       )}
                     >
-                      <Cpu size={18} className={!selectedAgentId ? "text-accent-violet" : ""} />
+                      <Cpu size={18} className={!selectedAgentId ? "text-accent-primary" : ""} />
                       <div>
                         <div className="text-sm font-medium">None (Direct Model)</div>
                         <div className="text-[11px] opacity-70">Use base Mistral models</div>
                       </div>
                     </button>
                     <button
-                      onClick={() => setModelSettings({ 
-                        selectedAgentId: 'ag_019dac56d3db769182f00597885ba0ef', 
-                        selectedAgentVersion: 20 
+                      onClick={() => setModelSettings({
+                        selectedAgentId: 'ag_019dac56d3db769182f00597885ba0ef',
+                        selectedAgentVersion: 24
                       })}
                       className={clsx(
                         "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
                         selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef'
-                          ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                          ? "bg-accent-primary/10 border-accent-primary/40 text-text-primary"
                           : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
                       )}
                     >
-                      <Bot size={18} className={selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? "text-accent-violet" : ""} />
+                      <Bot size={18} className={selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? "text-accent-primary" : ""} />
                       <div>
                         <div className="text-sm font-medium">Rollo</div>
                         <div className="text-[11px] opacity-70">Specialized agent (v20)</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setModelSettings({
+                        selectedAgentId: 'ag_019de5190c427595b14da480e4a201e9',
+                        selectedAgentVersion: undefined
+                      })}
+                      className={clsx(
+                        "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                        selectedAgentId === 'ag_019de5190c427595b14da480e4a201e9'
+                          ? "bg-accent-primary/10 border-accent-primary/40 text-text-primary"
+                          : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
+                      )}
+                    >
+                      <Bot size={18} className={selectedAgentId === 'ag_019de5190c427595b14da480e4a201e9' ? "text-accent-primary" : ""} />
+                      <div>
+                        <div className="text-sm font-medium">Rollo Strict</div>
+                        <div className="text-[11px] opacity-70">Strict specialized agent</div>
                       </div>
                     </button>
                   </div>
@@ -149,7 +169,7 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                           className={clsx(
                             "flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all text-sm",
                             selectedModel === model.id 
-                              ? "bg-accent-violet/10 border-accent-violet/40 text-text-primary" 
+                              ? "bg-accent-primary/10 border-accent-primary/40 text-text-primary" 
                               : "bg-surface-3 border-border-subtle text-text-muted hover:border-border-default"
                           )}
                         >
@@ -166,7 +186,7 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Temperature</h3>
-                      <span className="text-[11px] font-mono text-accent-violet">{temperature.toFixed(1)}</span>
+                      <span className="text-[11px] font-mono text-accent-primary">{temperature.toFixed(1)}</span>
                     </div>
                     <input
                       type="range"
@@ -175,6 +195,8 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                       step="0.1"
                       value={temperature}
                       onChange={(e) => setModelSettings({ temperature: parseFloat(e.target.value) })}
+                      aria-label="Temperature"
+                      title="Temperature"
                       className="w-full accent-accent-violet"
                     />
                   </div>
@@ -190,6 +212,8 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                       step="0.1"
                       value={topP}
                       onChange={(e) => setModelSettings({ topP: parseFloat(e.target.value) })}
+                      aria-label="Top P"
+                      title="Top P"
                       className="w-full accent-accent-cyan"
                     />
                   </div>
@@ -203,7 +227,7 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                     onChange={(e) => setModelSettings({ systemPrompt: e.target.value })}
                     rows={3}
                     placeholder="Set instructions for the AI behavior..."
-                    className="w-full bg-surface-3 border border-border-subtle rounded-xl p-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-violet/50 resize-none"
+                    className="w-full bg-surface-3 border border-border-subtle rounded-xl p-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary/50 resize-none"
                   />
                 </div>
               </div>
@@ -258,7 +282,7 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                   className={clsx(
                     "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
                     showSettings 
-                      ? "bg-accent-violet/20 text-accent-violet" 
+                      ? "bg-accent-primary/20 text-accent-primary" 
                       : "text-text-muted hover:text-text-secondary hover:bg-surface-3"
                   )}
                   aria-label="Toggle settings"
@@ -288,7 +312,7 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
                   aria-label="Send message"
                   className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200
                     ${hasContent && !isLoading
-                      ? 'bg-accent-violet hover:bg-accent-indigo text-white shadow-glow-sm hover:shadow-glow-md active:scale-90'
+                      ? 'bg-accent-primary hover:bg-accent-secondary text-white shadow-glow-sm hover:shadow-glow-md active:scale-90'
                       : 'bg-surface-3 text-text-muted cursor-not-allowed'
                     }`}
                 >
@@ -312,6 +336,47 @@ export const ChatInputPlus: React.FC<ChatInputProps> = ({ onSendMessage, isLoadi
               )}
             </div>
           </div>
+        </div>
+
+        {/* Active settings pills */}
+        <div className="flex items-center gap-1.5 mt-2 px-1 flex-wrap">
+          {/* Agent / Model pill */}
+          {selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent-primary/10 text-accent-primary border border-accent-primary/20">
+              <Bot size={10} />
+              rollo
+            </span>
+          ) : selectedAgentId === 'ag_019de5190c427595b14da480e4a201e9' ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <Shield size={10} />
+              rollo_strict
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">
+              <Cpu size={10} />
+              {selectedModel?.replace('mistral-', '').replace('-latest', '') || 'small'}
+            </span>
+          )}
+
+          {/* Temperature pill */}
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <Sparkles size={10} />
+            temp {temperature.toFixed(1)}
+          </span>
+
+          {/* Top P pill */}
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <Zap size={10} />
+            top-p {topP.toFixed(1)}
+          </span>
+
+          {/* System prompt indicator */}
+          {systemPrompt?.trim() && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20">
+              <Sliders size={10} />
+              sys prompt
+            </span>
+          )}
         </div>
       </div>
     </div>

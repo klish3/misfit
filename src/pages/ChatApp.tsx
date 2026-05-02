@@ -159,10 +159,14 @@ export const ChatApp = () => {
           </div>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black border border-border-subtle">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-accent-primary animate-pulse" />
             <span className="text-[11px] font-medium text-text-muted">
-              {selectedAgentId 
-                ? (selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef' ? 'rollo' : 'agent') 
+              {selectedAgentId === 'ag_019dac56d3db769182f00597885ba0ef'
+                ? 'rollo'
+                : selectedAgentId === 'ag_019de5190c427595b14da480e4a201e9'
+                ? 'rollo_strict'
+                : selectedAgentId
+                ? 'agent'
                 : (selectedModel?.replace('mistral-', '').replace('-latest', '') || 'small')}
             </span>
           </div>
@@ -181,7 +185,7 @@ export const ChatApp = () => {
                   </div>
                   {/* Glow ring */}
                   <div className="absolute inset-0 rounded-2xl opacity-30" 
-                       style={{ boxShadow: '0 0 40px 8px rgba(139, 92, 246, 0.15)' }} />
+                       style={{ boxShadow: '0 0 40px 8px rgb(var(--accent-rgb) / 0.15)' }} />
                 </div>
 
                 {/* Title */}
@@ -200,10 +204,10 @@ export const ChatApp = () => {
                       onClick={() => handleSendMessage(s.prompt)}
                       className="suggestion-chip group flex items-center gap-2.5 px-4 py-3.5 rounded-xl
                         bg-black border border-border-subtle text-left
-                        hover:border-accent-violet/30 hover:shadow-glow-sm
+                        hover:border-accent-primary/30 hover:shadow-glow-sm
                         active:scale-[0.98] transition-all duration-200"
                     >
-                      <span className="flex-shrink-0 text-accent-violet group-hover:text-accent-indigo transition-colors">
+                      <span className="flex-shrink-0 text-accent-primary group-hover:text-accent-secondary transition-colors">
                         {s.icon}
                       </span>
                       <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">

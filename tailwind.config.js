@@ -23,12 +23,15 @@ module.exports = {
           indigo: '#6366f1',
           cyan: '#06b6d4',
           teal: '#14b8a6',
+          // Theme-reactive tokens — driven by --accent-rgb CSS var
+          primary: 'rgb(var(--accent-rgb) / <alpha-value>)',
+          secondary: 'rgb(var(--accent-secondary-rgb) / <alpha-value>)',
         },
         // Border system
         border: {
           subtle: 'rgba(255, 255, 255, 0.06)',
           default: 'rgba(255, 255, 255, 0.1)',
-          focus: 'rgba(139, 92, 246, 0.5)',
+          focus: 'rgb(var(--accent-rgb) / 0.5)',
         },
         // Text system
         text: {
@@ -81,9 +84,9 @@ module.exports = {
         xs: '2px',
       },
       boxShadow: {
-        'glow-sm': '0 0 12px -2px rgba(139, 92, 246, 0.25)',
-        'glow-md': '0 0 24px -4px rgba(139, 92, 246, 0.3)',
-        'glow-lg': '0 0 48px -8px rgba(139, 92, 246, 0.2)',
+        'glow-sm': '0 0 12px -2px rgb(var(--accent-rgb) / 0.25)',
+        'glow-md': '0 0 24px -4px rgb(var(--accent-rgb) / 0.3)',
+        'glow-lg': '0 0 48px -8px rgb(var(--accent-rgb) / 0.2)',
         'surface': '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
         'surface-lg': '0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)',
       },

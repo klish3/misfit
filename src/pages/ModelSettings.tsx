@@ -19,7 +19,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, description, isSelected, ca
     className={clsx(
       'p-5 rounded-2xl cursor-pointer transition-all duration-300 group',
       isSelected 
-        ? 'bg-surface-3 border-accent-violet/40 shadow-glow-sm gradient-border' 
+        ? 'bg-surface-3 border-accent-primary/40 shadow-glow-sm gradient-border' 
         : 'bg-surface-2 border-border-subtle hover:border-border-default hover:bg-surface-3'
     )}
     style={{ border: isSelected ? undefined : '1px solid rgba(255,255,255,0.06)' }}
@@ -29,7 +29,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, description, isSelected, ca
         <div className={clsx(
           'flex items-center justify-center w-10 h-10 rounded-xl transition-all',
           isSelected 
-            ? 'bg-accent-violet/20 text-accent-violet' 
+            ? 'bg-accent-primary/20 text-accent-primary' 
             : 'bg-surface-3 text-text-muted group-hover:text-text-secondary'
         )}>
           {icon}
@@ -37,7 +37,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, description, isSelected, ca
         <div>
           <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
             {name}
-            {isSelected && <Sparkles className="w-4 h-4 text-accent-violet" />}
+            {isSelected && <Sparkles className="w-4 h-4 text-accent-primary" />}
           </h3>
           <p className="mt-0.5 text-sm text-text-muted">{description}</p>
         </div>
@@ -45,7 +45,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, description, isSelected, ca
       <div className={clsx(
         'w-5 h-5 rounded-full border-2 transition-all flex-shrink-0 mt-0.5',
         isSelected 
-          ? 'border-accent-violet bg-accent-violet shadow-glow-sm' 
+          ? 'border-accent-primary bg-accent-primary shadow-glow-sm' 
           : 'border-border-default'
       )}>
         {isSelected && (
@@ -61,7 +61,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, description, isSelected, ca
         <div key={idx} className="flex items-center gap-2 text-sm text-text-muted">
           <div className={clsx(
             'w-1 h-1 rounded-full flex-shrink-0',
-            isSelected ? 'bg-accent-violet' : 'bg-text-muted'
+            isSelected ? 'bg-accent-primary' : 'bg-text-muted'
           )} />
           {capability}
         </div>
@@ -86,7 +86,7 @@ const ParameterSlider: React.FC<{
         {icon}
         {label}
       </label>
-      <span className="text-sm font-mono text-accent-violet bg-accent-violet/10 px-2 py-0.5 rounded-md">
+      <span className="text-sm font-mono text-accent-primary bg-accent-primary/10 px-2 py-0.5 rounded-md">
         {value.toFixed(1)}
       </span>
     </div>
@@ -146,8 +146,8 @@ export const ModelSettings: React.FC = () => {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-2.5 rounded-xl bg-accent-violet/10">
-            <Cpu className="w-5 h-5 text-accent-violet" />
+          <div className="p-2.5 rounded-xl bg-accent-primary/10">
+            <Cpu className="w-5 h-5 text-accent-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">Model Settings</h1>
@@ -196,7 +196,7 @@ export const ModelSettings: React.FC = () => {
               label="Temperature"
               value={temperature}
               onChange={handleTemperatureChange}
-              icon={<Zap className="w-4 h-4 text-accent-violet" />}
+              icon={<Zap className="w-4 h-4 text-accent-primary" />}
               description="Higher values = more creative, lower = more focused"
             />
             <ParameterSlider
