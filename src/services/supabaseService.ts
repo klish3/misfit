@@ -18,16 +18,8 @@ const saveLocalStore = (store: LocalStore) => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(store));
 };
 
-// Check if Supabase is likely broken (URL not resolving)
-const isSupabaseBroken = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('evyyvgehnfyfkpzdppbd');
-
 export const supabaseService = {
   async fetchConversations() {
-    if (isSupabaseBroken) {
-      console.warn('Supabase URL appears invalid. Using localStorage.');
-      return getLocalStore().conversations;
-    }
-
     try {
       const { data, error } = await supabase
         .from('conversations')
@@ -51,10 +43,6 @@ export const supabaseService = {
   },
 
   async fetchMessages(conversationId: string) {
-    if (isSupabaseBroken) {
-      return getLocalStore().messages[conversationId] || [];
-    }
-
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -100,8 +88,6 @@ export const supabaseService = {
       });
     }
     saveLocalStore(store);
-
-    if (isSupabaseBroken) return conversation;
 
     try {
       const isoNow = new Date().toISOString();
@@ -149,8 +135,6 @@ export const supabaseService = {
     }
     saveLocalStore(store);
 
-    if (isSupabaseBroken) return msgData;
-
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -189,8 +173,6 @@ export const supabaseService = {
     }
     saveLocalStore(store);
 
-    if (isSupabaseBroken) return { id: messageId, content };
-
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -217,8 +199,6 @@ export const supabaseService = {
     delete store.messages[id];
     saveLocalStore(store);
 
-    if (isSupabaseBroken) return true;
-
     try {
       const { error } = await supabase
         .from('conversations')
@@ -237,10 +217,6 @@ export const supabaseService = {
   },
 
   async fetchUserPreferences(userId: string) {
-    if (isSupabaseBroken) {
-      return getLocalStore().userPreferences[userId] || null;
-    }
-
     try {
       const { data, error } = await supabase
         .from('user_preferences')
@@ -271,8 +247,6 @@ export const supabaseService = {
     const store = getLocalStore();
     store.userPreferences[userId] = settings;
     saveLocalStore(store);
-
-    if (isSupabaseBroken) return settings;
 
     try {
       const { data, error } = await supabase

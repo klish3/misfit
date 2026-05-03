@@ -21,6 +21,7 @@ export const ChatApp = () => {
     currentConversation,
     addMessage,
     updateMessage,
+    updateMessageLocal,
     setMessageLoading,
     setConversationTitle,
     initializeStore,
@@ -34,10 +35,16 @@ export const ChatApp = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [welcomeText, setWelcomeText] = useState('');
 
-  // Auto-scroll to bottom
+  // Scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentConversation?.messages.length]);
+
+  // Scroll during streaming as content grows
+  const lastContent = currentConversation?.messages[currentConversation.messages.length - 1]?.content;
+  useEffect(() => {
+    if (isLoading) messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [lastContent, isLoading]);
 
   // Initialize store with a conversation if needed
   useEffect(() => {
@@ -78,8 +85,6 @@ export const ChatApp = () => {
 
     addMessage(currentConversation.id, text, 'user');
 
-    // Prepare history: previous messages + current user message
-    // Filters out empty loading/error messages from previous turns
     const filteredHistory = currentConversation.messages
       .filter(msg => !msg.isLoading && (msg.role === 'user' || msg.content.trim() !== ''))
       .map(msg => ({ content: msg.content, role: msg.role }));
@@ -95,9 +100,13 @@ export const ChatApp = () => {
 
     setIsLoading(true);
     const loadingMessage = addMessage(currentConversation.id, '', 'assistant');
+    setMessageLoading(currentConversation.id, loadingMessage.id, true);
+
+    let accumulated = '';
+    let firstChunk = true;
 
     try {
-      const response = await mistralService.chat(
+      const result = await mistralService.chatStream(
         conversationHistory,
         selectedModel || 'mistral-small-latest',
         {
@@ -107,12 +116,20 @@ export const ChatApp = () => {
           randomSeed: Math.floor(Math.random() * 1000000)
         },
         selectedAgentId,
-        selectedAgentVersion
+        selectedAgentVersion,
+        (delta) => {
+          if (firstChunk) {
+            firstChunk = false;
+            setMessageLoading(currentConversation.id, loadingMessage.id, false);
+          }
+          accumulated += delta;
+          updateMessageLocal(currentConversation.id, loadingMessage.id, accumulated);
+        }
       );
 
-      const accumulatedResponse = response.content || '';
-      const thinking = (response as any).thinking;
-      updateMessage(currentConversation.id, loadingMessage.id, accumulatedResponse, thinking);
+      // Final persist to Supabase with complete content
+      const finalContent = result.content || accumulated;
+      updateMessage(currentConversation.id, loadingMessage.id, finalContent, result.thinking);
       setMessageLoading(currentConversation.id, loadingMessage.id, false);
 
       if (currentConversation.messages.length <= 2) {
@@ -121,11 +138,7 @@ export const ChatApp = () => {
       }
     } catch (error) {
       console.error('Error getting response:', error);
-      updateMessage(
-        currentConversation.id,
-        loadingMessage.id,
-        'Something went wrong. Please try again.'
-      );
+      updateMessage(currentConversation.id, loadingMessage.id, 'Something went wrong. Please try again.');
       setMessageLoading(currentConversation.id, loadingMessage.id, false);
     } finally {
       setIsLoading(false);
@@ -171,6 +184,13 @@ export const ChatApp = () => {
             </span>
           </div>
         </header>
+
+        {/* Streaming progress bar */}
+        {isLoading && (
+          <div className="h-0.5 w-full overflow-hidden bg-transparent">
+            <div className="h-full bg-accent-primary origin-left animate-[stream-progress_1.8s_ease-in-out_infinite]" />
+          </div>
+        )}
 
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
@@ -220,15 +240,19 @@ export const ChatApp = () => {
             ) : (
               /* ─── Messages ─── */
               <>
-                {currentConversation?.messages.map((msg) => (
-                  <ChatMessage
-                    key={msg.id}
-                    content={msg.content}
-                    thinking={msg.thinking}
-                    role={msg.role as 'user' | 'assistant'}
-                    isLoading={msg.isLoading}
-                  />
-                ))}
+                {currentConversation?.messages.map((msg, i) => {
+                  const isLastMsg = i === currentConversation.messages.length - 1;
+                  return (
+                    <ChatMessage
+                      key={msg.id}
+                      content={msg.content}
+                      thinking={msg.thinking}
+                      role={msg.role as 'user' | 'assistant'}
+                      isLoading={msg.isLoading}
+                      isStreaming={isLoading && isLastMsg && !msg.isLoading && msg.role === 'assistant'}
+                    />
+                  );
+                })}
                 <div ref={messagesEndRef} />
               </>
             )}

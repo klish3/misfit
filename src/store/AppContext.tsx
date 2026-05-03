@@ -261,6 +261,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     supabaseService.updateMessage(messageId, content, thinking);
   }, []);
 
+  const updateMessageLocal = useCallback((conversationId: string, messageId: string, content: string, thinking?: string) => {
+    dispatch({ type: 'UPDATE_MESSAGE', payload: { conversationId, messageId, content, thinking } });
+  }, []);
+
   const setMessageLoading = useCallback((conversationId: string, messageId: string, loading: boolean) => {
     dispatch({ type: 'SET_MESSAGE_LOADING', payload: { conversationId, messageId, loading } });
   }, []);
@@ -295,6 +299,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setModelSettings,
     addMessage,
     updateMessage,
+    updateMessageLocal,
     setMessageLoading,
     setConversationTitle,
     syncAllConversations,

@@ -9,9 +9,10 @@ interface ChatMessageProps {
   thinking?: string;
   role: 'user' | 'assistant';
   isLoading?: boolean;
+  isStreaming?: boolean;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, role, isLoading }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, role, isLoading, isStreaming }) => {
   const isUser = role === 'user';
   const [copied, setCopied] = useState(false);
   const [copiedBlock, setCopiedBlock] = useState<string | null>(null);
@@ -29,14 +30,19 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
     setTimeout(() => setCopiedBlock(null), 2000);
   };
 
-  const parseThinking = () => {
-      let thinkingText = '';
-      if (typeof thinking === 'string') {
-        const parsed = JSON.parse(thinking);
-        const items = Array.isArray(parsed) ? parsed : [parsed];
-        thinkingText = items.map((item: { text?: string }) => item.text || '').join('');
-      }
-      return thinkingText;
+  const parseThinking = (): string => {
+    if (!thinking) return '';
+    // Guard: thinking may arrive as a non-string object at runtime
+    if (typeof thinking !== 'string') return '';
+    const trimmed = thinking.trim();
+    if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) return trimmed;
+    try {
+      const parsed = JSON.parse(trimmed);
+      const items: { text?: string }[] = Array.isArray(parsed) ? parsed : [parsed];
+      return items.map(item => item.text || '').join('');
+    } catch {
+      return trimmed;
+    }
   };
 
   return (
@@ -264,6 +270,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ content, thinking, rol
               >
                 {content}
               </ReactMarkdown>
+              {isStreaming && (
+                <span className="inline-block w-0.5 h-4 ml-0.5 bg-accent-primary align-middle animate-[cursor-blink_0.8s_step-end_infinite]" />
+              )}
             </div>
           </>
           )}

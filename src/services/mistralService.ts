@@ -213,6 +213,45 @@ class MistralService {
     }
   }
 
+  async chatStream(
+    messages: ChatMessage[],
+    model: string = 'mistral-small-latest',
+    options: ChatOptions = {},
+    agentId?: string,
+    agentVersion?: number,
+    onChunk?: (delta: string) => void
+  ): Promise<{ content: string; thinking?: string }> {
+    if (agentId) {
+      const result = await this.chat(messages, model, options, agentId, agentVersion);
+      if (result.content) onChunk?.(result.content);
+      return result;
+    }
+
+    try {
+      const stream = await this.client.chat.stream({
+        model,
+        messages,
+        temperature: options.temperature,
+        topP: options.topP,
+        maxTokens: options.maxTokens,
+        randomSeed: options.randomSeed,
+      });
+
+      let content = '';
+      for await (const event of stream) {
+        const delta = (event as any).data?.choices?.[0]?.delta?.content;
+        if (typeof delta === 'string' && delta) {
+          content += delta;
+          onChunk?.(delta);
+        }
+      }
+      return { content };
+    } catch (error) {
+      console.error('Error in Mistral stream chat:', error);
+      throw error;
+    }
+  }
+
   async chatM(message: string) {
     const result = await this.client.chat.complete({
       model: "mistral-small-latest",
